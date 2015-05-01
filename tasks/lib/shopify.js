@@ -10,6 +10,33 @@ module.exports = function(grunt) {
     shopify._api = false;
     shopify._basePath = false;
 
+    shopify._queueWorker = function(task, callback) {
+        var config = grunt.config('shopify');
+        var rate_limit = config.options.rate_limit_delay ?
+                config.options.rate_limit_delay :
+                500 // default val
+
+        function postUploadCallback() {
+            task.done();
+            // wait before concluding the task
+            setTimeout(callback, rate_limit);
+        }
+
+        switch (task.action) {
+            case 'upload':
+                shopify.upload(task.filepath, postUploadCallback);
+                break;
+            case 'remove':
+                shopify.remove(task.filepath, postUploadCallback);
+                break;
+            default:
+                shopify.notify('unrecognized worker task action: ' + task.action, true);
+                break;
+        }
+    }
+
+    shopify.queue = async.queue(shopify._queueWorker, 1);
+
     /*
      * Get the Shopify API instance.
      *
