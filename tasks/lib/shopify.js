@@ -472,13 +472,21 @@ module.exports = function(grunt) {
         }
 
         if (action === 'deleted') {
-            shopify.remove(filepath, errorHandler);
+            shopify.queue.push({
+                action: 'remove',
+                filepath: filepath,
+                done: errorHandler
+            });
         } else if (grunt.file.isFile(filepath)) {
             switch (action) {
                 case 'added':
                 case 'changed':
                 case 'renamed':
-                shopify.upload(filepath, errorHandler);
+                shopify.queue.push({
+                    action: 'upload',
+                    filepath: filepath,
+                    done: errorHandler
+                });
                 break;
             }
         } else {
