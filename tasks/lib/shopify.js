@@ -10,6 +10,15 @@ module.exports = function(grunt) {
     shopify._api = false;
     shopify._basePath = false;
 
+    /*
+     * Queued task worker.
+     *
+     * Receive task object and process it.
+     *
+     * @param {Object} task
+     * @param {Function} callback
+     * @see {@link https://github.com/caolan/async#queue}
+     */
     shopify._queueWorker = function(task, callback) {
         var config = grunt.config('shopify');
         var rate_limit = config.options.rate_limit_delay ?
